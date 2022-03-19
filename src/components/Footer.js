@@ -11,43 +11,36 @@ function Footer() {
             sx={{
                 borderTop: 1,
                 borderColor: "grey.300",
-                my: 10,
+                my: 5,
+                textAlign: "center",
             }}
         >
-            <Container
+            <Box
                 sx={{
-                    mx: "auto",
-                    width: "90%",
-                    textAlign: "center",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: 10,
+                    my: 1,
                 }}
             >
-                <Box
-                    sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        fontSize: 10,
-                        mt: 1,
-                    }}
+                <NavLink
+                    to="/privacy_policy"
+                    style={{ color: "gray", textDecoration: "none" }}
                 >
-                    <NavLink
-                        to="/privacy_policy"
-                        style={{ color: "gray", textDecoration: "none" }}
-                    >
-                        Privacy Policy
-                    </NavLink>
-                    <Link
-                        href="https://www.flaticon.com/free-icons/dog"
-                        underline="none"
-                        target="_blank"
-                        color="gray"
-                    >
-                        Dog icons created by Freepik - Flaticon
-                    </Link>
-                </Box>
-                <Box sx={{ fontSize: 12, color: "gray" }}>
-                    &copy; Devitizen 2022. All Rights Reserved.
-                </Box>
-            </Container>
+                    Privacy Policy
+                </NavLink>
+                <Link
+                    href="https://www.flaticon.com/free-icons/dog"
+                    underline="none"
+                    target="_blank"
+                    color="gray"
+                >
+                    Dog icons created by Freepik - Flaticon
+                </Link>
+            </Box>
+            <Box sx={{ fontSize: 10, color: "gray", mt: 2 }}>
+                &copy; Devitizen 2022. All Rights Reserved.
+            </Box>
         </Container>
     );
 }

@@ -1,7 +1,7 @@
-import React from "react";
-import $ from "jquery";
+import React, {useState} from "react";
+import {render, unmountComponentAtNode} from 'react-dom';
 import * as tmImage from "@teachablemachine/image";
-import breeds from "./breeds";
+import breeds from "./data";
 
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
@@ -12,26 +12,31 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Grid from '@mui/material/Grid';
 
-
-const TextMain = (props) => (
-    <Typography sx={{ paddingY: 1, fontSize: 14 }}>{props.children}</Typography>
-);
 
 function Body() {
+
+    const [showResultContainer, setShowResultContainer] = useState(false);
+    const [showSpinner, setShowSpinner] = useState(false);
+
     const onClickHandler = (event) => {
         const input = event.target.files;
         if (input && input[0]) {
-            $("#image-container").show();
-            $("#spinner").show();
-            $("#dog-image").show();
-            $("#result-message").empty();
-            $("#result-list").empty();
+            setShowResultContainer(true);
+            setShowSpinner(true);
+
+            const resultMessage = document.getElementById("result-message");
+            if (resultMessage != null)
+                resultMessage.innerHTML = "";
+                
+            const resultList = document.getElementById("result-list");
+            if (resultList != null)
+                unmountComponentAtNode(resultList);
 
             var reader = new FileReader();
             reader.onload = function (e) {
-                $("#dog-image").attr("src", e.target.result);
-                $("#result").show();
+                document.getElementById("dog-image").setAttribute("src", e.target.result);
             };
             reader.readAsDataURL(input[0]);
 
@@ -55,82 +60,82 @@ function Body() {
     };
 
     const predict = async () => {
-        const dogImage = document.getElementById("dog-image");
-        const result = await model.predict(dogImage, false);
+        const result = await model.predict(document.getElementById("dog-image"), false);
 
-        const prediction = result
-                            .filter((element) => element.probability >= 0.001)
-                            .sort((a, b) => b.probability - a.probability)
-                            .slice(0, 5);
+        const breeds = result
+                        .filter((element) => element.probability >= 0.001)
+                        .sort((a, b) => b.probability - a.probability)
+                        .slice(0, 5);
 
-        const firstBreed = prediction[0].className;
-        const firstRatio = prediction[0].probability;
-        const isIdentified = firstRatio >= 0.5;
         let message;
-
+        const isIdentified = breeds[0].probability >= 0.5;
         if (isIdentified) {
-            message = firstBreed;
-            makeListOfBreeds(prediction);
+            message = breeds[0].className;
+
+            const list = breeds.map(getList);
+            render(list, document.getElementById("result-list"));
 
         } else {
             message = "Sorry, no idea what it is.";
         }
 
-        $("#spinner").hide();
-        $("#result-message").html(message);
+        setShowSpinner(false);
+        document.getElementById("result-message").innerHTML = message;
     };
 
-    const makeListOfBreeds = (prediction) => {
-        for (let i = 0; i < prediction.length; i++) {
-            let list = document.createElement("div");
-            list.style.display = "grid";
-            list.style.gridTemplateColumns = "1fr 1fr"
-            list.style.marginTop = "12px";
+    const getList = (breed, i) => {
+        const name = breed.className;
+        const rate = Math.floor(breed.probability * 10000) / 100;
+        const randomColor = "#" + Math.floor(Math.random() * 16777215).toString(16) + "80";
 
-            let name = document.createElement("div");
-            name.style.gridColumn = 1;
-            name.style.textAlign = "right";
-            name.style.marginRight = "10px";
-            let nameText = document.createTextNode(prediction[i].className);
-            name.appendChild(nameText);
-            list.appendChild(name);
-
-            let bar = document.createElement("div");
-            bar.style.gridColumn = 2;
-            let ratio = document.createElement("div");
-            ratio.classList.add("ratio");
-            let number = Math.floor(prediction[i].probability * 10000) / 100;
-            let ratioText = document.createTextNode(number.toFixed(1) + "%");
-            ratio.appendChild(ratioText);
-            ratio.style.backgroundColor = "#" + Math.floor(Math.random() * 16777215).toString(16) + "80";
-            ratio.style.width = number + "%";
-            ratio.style.border = "1px solid gray";
-            ratio.style.borderRadius = "6px";
-            ratio.style.paddingLeft = "10px";
-            bar.appendChild(ratio);
-            list.appendChild(bar);
-
-            $("#result-list").append(list);
-        }
+        return (
+            <Grid container key={i} >
+                <Grid item xs={12} sm={6}>
+                    <Typography 
+                        sx={{textAlign: [null, "right", null]}} 
+                    >
+                        {name}
+                    </Typography>
+                </Grid>
+                <Grid item xs={12} sm={6} sx={{mb: "16px"}}>
+                    <Typography 
+                        sx={{
+                            backgroundColor: randomColor, 
+                            width: rate + "%", 
+                            border: "1px solid gray",
+                            borderRadius: 1,
+                            pl: 1,
+                            ml: [0, 1, 2]
+                        }}
+                    >
+                        {rate.toFixed(1) + "%"}
+                    </Typography>
+                </Grid>
+            </Grid>
+        );
     }
+
+    const Description = (props) => (
+        <Typography sx={{ paddingY: 1, fontSize: 14 }}>{props.children}</Typography>
+    );
 
 
     return (
-        <Container sx={{mx: "auto", width: "80%"}}>
+        <div>
             <Container sx={{ mt: 5 }}>
                 <Typography
                     variant="h5"
-                    sx={{mx: "auto", width: "100%", textAlign: "center", fontWeight: 600}}
+                    sx={{textAlign: "center", fontWeight: 600}}
                 >
                     What kind of dog does it look like?
                 </Typography>
                 <Typography
-                    sx={{mx: "auto", width: "100%", textAlign: "center", fontSize: 18, paddingTop: 2}}
+                    sx={{textAlign: "center", fontSize: 18, paddingTop: 2}}
                 >
                     Find out dog's breed with its image.
                 </Typography>
                 <Box
-                    sx={{mx: "auto", width: "100%", textAlign: "center", paddingTop: 2}}
+                    sx={{textAlign: "center", paddingTop: 2}}
                 >
                     <label>
                         <input accept="image/*" type="file" hidden onChange={onClickHandler}/>
@@ -140,56 +145,52 @@ function Body() {
                     </label>
                 </Box>
             </Container>
-
+           
             <Container sx={{ mt: 5 }}>
-                <Container 
-                    sx={{ backgroundColor: "grey.100", display: "none", py: 6, borderRadius: 2, width: "70%" }} 
-                    id="image-container"
-                >
-                    <Box 
-                        sx={{ mx: "auto", width: "100%", textAlign: "center"}}
-                        hidden
-                        id="spinner"
-                    >
-                        <Typography>Identification is in progress...</Typography>
-                        <CircularProgress sx={{my: 2}}/>
-                    </Box>
-                    <Box
-                        sx={{ mx: "auto", width: "100%", textAlign: "center"}}
-                    >
-                        <img src="#" alt="dog" id="dog-image" hidden style={{maxWidth:500}}/>
-                    </Box>
-                    
-                    <Box
-                        sx={{ mx: "auto", width: "100%"}}
-                        hidden
-                        id="result"
-                    >
-                        <Typography 
-                            variant="h5"
-                            sx={{mx: "auto", width: "100%", textAlign: "center", fontWeight: 600, my: 3}}
-                            id="result-message">
-                        </Typography>
-                        <Typography 
-                            sx={{mx: "auto", width: "80%"}}
-                            id="result-list"
-                        >
-                        </Typography>
-                    </Box>
-                </Container>
+                { showResultContainer ? 
+                    <Container sx={{ backgroundColor: "grey.100", py: 4, borderRadius: 2 }} >
+                        { showSpinner ?
+                            <Box sx={{ mx: "auto", width: "100%", textAlign: "center"}} >
+                                <Typography>Identification is in progress...</Typography>
+                                <CircularProgress sx={{my: 2}}/>
+                            </Box>
+                            : null
+                        }
+
+                        <Box sx={{ textAlign: "center"}}>
+                            <img 
+                                src="#" alt="dog" id="dog-image" 
+                                style={{maxWidth: "90%", maxHeight: "500px" }}/>
+                        </Box>
+                        
+                        <Box sx={{ mx: "auto", width: ["90%", "100%", "70%"]}} >
+                            <Typography 
+                                sx={{textAlign: "center", fontSize: 18, fontWeight: 600, my: 3}}
+                                id="result-message"
+                            >
+                            </Typography>
+                            <Box
+                                sx={{fontSize: 14}}
+                                id="result-list"
+                            >
+                            </Box>
+                        </Box>
+                    </Container>
+                    : null 
+                }
             </Container>
 
             <Container sx={{ mt: 5 }}>
-                <Box sx={{ ml: 2 }}>
-                    <TextMain>
+                <Box sx={{ mx: 2 }}>
+                    <Description>
                         Dog Breed Finder takes advantage of the Google machine learning technology.
-                    </TextMain>
-                    <TextMain>
+                    </Description>
+                    <Description>
                         It will try to find a breed of dogs even though the selected image was not taken from dogs.
-                    </TextMain>
-                    <TextMain>
+                    </Description>
+                    <Description>
                         It can identify 60 breeds for now as follows.{" "}
-                    </TextMain>
+                    </Description>
                 </Box>
 
                 <Accordion>
@@ -209,7 +210,7 @@ function Body() {
                     </AccordionDetails>
                 </Accordion>
             </Container>
-        </Container>
+        </div>
     );
 }
 
