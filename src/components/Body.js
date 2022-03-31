@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import {render, unmountComponentAtNode} from 'react-dom';
 import * as tmImage from "@teachablemachine/image";
 import breeds from "./data";
+import findByName from "../services/connect"
 
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
@@ -26,9 +27,14 @@ function Body() {
             setShowResultContainer(true);
             setShowSpinner(true);
 
-            const resultMessage = document.getElementById("result-message");
-            if (resultMessage != null)
-                resultMessage.innerHTML = "";
+            // delete the previous result
+            const resultName = document.getElementById("result-name");
+            if (resultName != null)
+                resultName.innerHTML = "";
+
+            const resultDescription = document.getElementById("result-description");
+            if (resultDescription != null)
+                unmountComponentAtNode(resultDescription);
                 
             const resultList = document.getElementById("result-list");
             if (resultList != null)
@@ -61,35 +67,52 @@ function Body() {
 
     const predict = async () => {
         const result = await model.predict(document.getElementById("dog-image"), false);
-
         const breeds = result
                         .filter((element) => element.probability >= 0.001)
                         .sort((a, b) => b.probability - a.probability)
                         .slice(0, 5);
-
-        let message;
+        
         const isIdentified = breeds[0].probability >= 0.5;
+        let breedName;
         if (isIdentified) {
-            message = breeds[0].className;
+            breedName = breeds[0].className;
 
-            const list = breeds.map(getList);
+            const breed = await findByName(breedName)
+                                .then(res => res.data);
+                                            
+            const description = makeDescription(breed);
+            render(description, document.getElementById("result-description"));
+
+            const list = breeds.map(makeList);
             render(list, document.getElementById("result-list"));
-
         } else {
-            message = "Sorry, no idea what it is.";
+            breedName = "Sorry, no idea what it is.";
         }
 
         setShowSpinner(false);
-        document.getElementById("result-message").innerHTML = message;
+        document.getElementById("result-name").append(breedName);
     };
 
-    const getList = (breed, i) => {
+    const makeDescription = (breed) => {
+        return (
+            <Typography sx={{my: 3}}>
+                {breed.description} 
+                <a href={breed.url} target="_blank" rel="noreferrer" 
+                   style={{textDecoration: "none", fontWeight: 500, marginLeft: "10px", color: "#1769aa"}}
+                >
+                    Wikipedia
+                </a>
+            </Typography>
+        );
+    }
+        
+    const makeList = (breed, i) => {
         const name = breed.className;
         const rate = Math.floor(breed.probability * 10000) / 100;
         const randomColor = "#" + Math.floor(Math.random() * 16777215).toString(16) + "80";
 
         return (
-            <Grid container key={i} >
+            <Grid container key={i} sx={{ pt: 2 }} >
                 <Grid item xs={12} sm={6}>
                     <Typography 
                         sx={{textAlign: [null, "right", null]}} 
@@ -105,7 +128,7 @@ function Body() {
                             border: "1px solid gray",
                             borderRadius: 1,
                             pl: 1,
-                            ml: [0, 1, 2]
+                            ml: [0, 1, 2],
                         }}
                     >
                         {rate.toFixed(1) + "%"}
@@ -113,11 +136,7 @@ function Body() {
                 </Grid>
             </Grid>
         );
-    }
-
-    const Description = (props) => (
-        <Typography sx={{ paddingY: 1, fontSize: 14 }}>{props.children}</Typography>
-    );
+    };
 
 
     return (
@@ -156,24 +175,19 @@ function Body() {
                             </Box>
                             : null
                         }
-
                         <Box sx={{ textAlign: "center"}}>
                             <img 
                                 src="#" alt="dog" id="dog-image" 
                                 style={{maxWidth: "90%", maxHeight: "500px" }}/>
                         </Box>
-                        
                         <Box sx={{ mx: "auto", width: ["90%", "100%", "70%"]}} >
                             <Typography 
                                 sx={{textAlign: "center", fontSize: 18, fontWeight: 600, my: 3}}
-                                id="result-message"
+                                id="result-name"
                             >
                             </Typography>
-                            <Box
-                                sx={{fontSize: 14}}
-                                id="result-list"
-                            >
-                            </Box>
+                            <Box id="result-description"></Box>
+                            <Box id="result-list"></Box>
                         </Box>
                     </Container>
                     : null 
@@ -182,15 +196,11 @@ function Body() {
 
             <Container sx={{ mt: 5 }}>
                 <Box sx={{ mx: 2 }}>
-                    <Description>
-                        Dog Breed Finder takes advantage of the Google machine learning technology.
-                    </Description>
-                    <Description>
-                        It will try to find a breed of dogs even though the selected image was not taken from dogs.
-                    </Description>
-                    <Description>
-                        It can identify 60 breeds for now as follows.{" "}
-                    </Description>
+                    <Typography sx={{ paddingY: 1, fontSize: 14 }}>
+                        Dog Breed Finder takes advantage of the Google machine learning technology.<br/><br/>
+                        It will try to find a breed of dogs even though the selected image was not taken from dogs.<br/><br/>
+                        It can identify 60 breeds for now as follows.<br/>
+                    </Typography>
                 </Box>
 
                 <Accordion>
