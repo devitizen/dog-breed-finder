@@ -51,7 +51,7 @@ function Body() {
     };
 
     // the link to your model provided by Teachable Machine export panel
-    const URL = "./models/";
+    const URL = "./models/v3.1/";
     let model;
 
     // Load the image model and setup the webcam
