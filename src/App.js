@@ -1,6 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
+import { HashRouter, Routes, Route } from "react-router-dom";
 import Container from "@mui/material/Container";
 
 import Header from "./components/Header";
@@ -10,35 +9,31 @@ import Policy from "./components/Policy";
 
 export default function App() {
     return (
-        <Router>
+        <HashRouter>
             <Routes>
+                <Route exact path="/" element={<Home />} />
                 <Route path="/privacy_policy" element={<PrivacyPolicy />} />
-                <Route path="/" element={<Home />} />
             </Routes>
-        </Router>
+        </HashRouter>
     );
 }
 
 function Home() {
     return (
-        <div>
-            <Container>
-                <Header />
-                <Body />
-                <Footer />
-            </Container>
-        </div>
+        <Container>
+            <Header />
+            <Body />
+            <Footer />
+        </Container>
     );
 }
 
 function PrivacyPolicy() {
     return (
-        <div>
-            <Container>
-                <Header />
-                <Policy />
-                <Footer />
-            </Container>
-        </div>
+        <Container>
+            <Header />
+            <Policy />
+            <Footer />
+        </Container>
     );
 }
