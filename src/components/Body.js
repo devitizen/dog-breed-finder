@@ -143,13 +143,13 @@ function Body() {
         <div>
             <Container sx={{ mt: 5 }}>
                 <Typography
-                    variant="h5"
+                    variant="h6"
                     sx={{textAlign: "center", fontWeight: 600}}
                 >
                     What kind of dog does it look like?
                 </Typography>
                 <Typography
-                    sx={{textAlign: "center", fontSize: 18, paddingTop: 2}}
+                    sx={{textAlign: "center", fontSize: 16, paddingTop: 2}}
                 >
                     Find out dog's breed with its image.
                 </Typography>
@@ -198,7 +198,7 @@ function Body() {
                 <Box sx={{ mx: 2 }}>
                     <Typography sx={{ paddingY: 1, fontSize: 14 }}>
                         Dog Breed Finder takes advantage of the Google machine learning technology.<br/><br/>
-                        It will try to find a breed of dogs even though the selected image was not taken from dogs.<br/><br/>
+                        It will try to find a breed of dogs even if the selected image is not taken from dogs.<br/><br/>
                         It can identify 60 breeds for now as follows.<br/>
                     </Typography>
                 </Box>
