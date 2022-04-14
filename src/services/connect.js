@@ -9,4 +9,10 @@ async function findByName (name) {
     return await axios.get(url, config);
 }
 
-export default findByName;
+async function findAll() {
+    const url = baseURL + "/api/all";
+
+    return await axios.get(url);
+}
+
+export { findByName, findAll };

@@ -1,13 +1,12 @@
 import React, {useState} from "react";
 import {render, unmountComponentAtNode} from 'react-dom';
 import * as tmImage from "@teachablemachine/image";
-import breeds from "./data";
-import findByName from "../services/connect"
+import breeds from "../data/breeds";
+import { findByName } from "../services/connect"
 
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -16,7 +15,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Grid from '@mui/material/Grid';
 
 
-function Body() {
+function Identify() {
 
     const [showResultContainer, setShowResultContainer] = useState(false);
     const [showSpinner, setShowSpinner] = useState(false);
@@ -75,11 +74,10 @@ function Body() {
         const isIdentified = breeds[0].probability >= 0.5;
         let breedName;
         if (isIdentified) {
-            breedName = breeds[0].className;
-
+            breedName = breeds[0].className.trim();
             const breed = await findByName(breedName)
                                 .then(res => res.data);
-                                            
+            
             const description = makeDescription(breed);
             render(description, document.getElementById("result-description"));
 
@@ -95,14 +93,14 @@ function Body() {
 
     const makeDescription = (breed) => {
         return (
-            <Typography sx={{my: 3}}>
+            <Box sx={{my: 3}}>
                 {breed.description} 
                 <a href={breed.url} target="_blank" rel="noreferrer" 
                    style={{textDecoration: "none", fontWeight: 500, marginLeft: "10px", color: "#1769aa"}}
                 >
                     Wikipedia
                 </a>
-            </Typography>
+            </Box>
         );
     }
         
@@ -114,14 +112,14 @@ function Body() {
         return (
             <Grid container key={i} sx={{ pt: 2 }} >
                 <Grid item xs={12} sm={6}>
-                    <Typography 
+                    <Box 
                         sx={{textAlign: [null, "right", null]}} 
                     >
                         {name}
-                    </Typography>
+                    </Box>
                 </Grid>
                 <Grid item xs={12} sm={6} sx={{mb: "16px"}}>
-                    <Typography 
+                    <Box 
                         sx={{
                             backgroundColor: randomColor, 
                             width: rate + "%", 
@@ -132,7 +130,7 @@ function Body() {
                         }}
                     >
                         {rate.toFixed(1) + "%"}
-                    </Typography>
+                    </Box>
                 </Grid>
             </Grid>
         );
@@ -142,20 +140,13 @@ function Body() {
     return (
         <div>
             <Container sx={{ mt: 5 }}>
-                <Typography
-                    variant="h6"
-                    sx={{textAlign: "center", fontWeight: 600}}
-                >
+                <Box sx={{textAlign: "center", fontSize: 20, fontWeight: 600}}>
                     What kind of dog does it look like?
-                </Typography>
-                <Typography
-                    sx={{textAlign: "center", fontSize: 16, paddingTop: 2}}
-                >
+                </Box>
+                <Box sx={{textAlign: "center", fontSize: 16, paddingTop: 2}}>
                     Find out dog's breed with its image.
-                </Typography>
-                <Box
-                    sx={{textAlign: "center", paddingTop: 2}}
-                >
+                </Box>
+                <Box sx={{textAlign: "center", paddingTop: 2}}>
                     <label>
                         <input accept="image/*" type="file" hidden onChange={onClickHandler}/>
                         <Button variant="contained" size="large" component="span">
@@ -169,9 +160,13 @@ function Body() {
                 { showResultContainer ? 
                     <Container sx={{ backgroundColor: "grey.100", py: 4, borderRadius: 2 }} >
                         { showSpinner ?
-                            <Box sx={{ mx: "auto", width: "100%", textAlign: "center"}} >
-                                <Typography>Identification is in progress...</Typography>
-                                <CircularProgress sx={{my: 2}}/>
+                            <Box
+                                sx={{ mx: "auto", width: "100%", textAlign: "center"}}
+                            >
+                                <Button>In progress ...</Button>
+                                <Box sx={{my: 2}}>
+                                    <CircularProgress />
+                                </Box>
                             </Box>
                             : null
                         }
@@ -181,11 +176,11 @@ function Body() {
                                 style={{maxWidth: "90%", maxHeight: "500px" }}/>
                         </Box>
                         <Box sx={{ mx: "auto", width: ["90%", "100%", "70%"]}} >
-                            <Typography 
+                            <Box 
                                 sx={{textAlign: "center", fontSize: 18, fontWeight: 600, my: 3}}
                                 id="result-name"
                             >
-                            </Typography>
+                            </Box>
                             <Box id="result-description"></Box>
                             <Box id="result-list"></Box>
                         </Box>
@@ -196,11 +191,11 @@ function Body() {
 
             <Container sx={{ mt: 5 }}>
                 <Box sx={{ mx: 2 }}>
-                    <Typography sx={{ paddingY: 1, fontSize: 14 }}>
+                    <Box sx={{ paddingY: 1, fontSize: 14 }}>
                         Dog Breed Finder takes advantage of the Google machine learning technology.<br/><br/>
                         It will try to find a breed of dogs even if the selected image is not taken from dogs.<br/><br/>
                         It can identify 60 breeds for now as follows.<br/>
-                    </Typography>
+                    </Box>
                 </Box>
 
                 <Accordion>
@@ -209,14 +204,14 @@ function Body() {
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                     >
-                        <Typography sx={{ fontSize: 14, fontWeight: 500, color: "#1976d2" }}>
+                        <Box sx={{ fontSize: 14, fontWeight: 500, color: "#1976d2" }}>
                             Click here to check what breeds are available.
-                        </Typography>
+                        </Box>
                     </AccordionSummary>
                     <AccordionDetails>
-                        <Typography sx={{ fontSize: 14 }}>
+                        <Box sx={{ fontSize: 14 }}>
                             {breeds}
-                        </Typography>
+                        </Box>
                     </AccordionDetails>
                 </Accordion>
             </Container>
@@ -224,4 +219,4 @@ function Body() {
     );
 }
 
-export default Body;
+export default Identify;

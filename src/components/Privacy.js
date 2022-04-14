@@ -2,10 +2,10 @@ import React from "react";
 
 import Container from "@mui/material/Container";
 
-export default function Policy() {
+export default function Privacy() {
     return (
         <Container>
-            <Container sx={{ mt: 3 }}>
+            <Container sx={{ mt: 3, fontSize: 14}}>
                 <h3>Privacy Policy for Dog Breed Finder</h3>
                 <div>
                     <p>

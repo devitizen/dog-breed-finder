@@ -24,7 +24,7 @@ function Footer() {
                 }}
             >
                 <NavLink
-                    to="/privacy_policy"
+                    to="/privacy"
                     style={{ color: "gray", textDecoration: "none" }}
                 >
                     Privacy Policy
