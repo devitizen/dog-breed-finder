@@ -1,5 +1,6 @@
 import React, {useState} from "react";
-import {render, unmountComponentAtNode} from 'react-dom';
+import { createRoot } from 'react-dom/client';
+
 import * as tmImage from "@teachablemachine/image";
 import breeds from "../data/breeds";
 import { findByName } from "../services/connect"
@@ -32,12 +33,18 @@ function Identify() {
                 resultName.innerHTML = "";
 
             const resultDescription = document.getElementById("result-description");
-            if (resultDescription != null)
-                unmountComponentAtNode(resultDescription);
+            if (resultDescription != null) {
+                const rootResultDescription = createRoot(resultDescription);
+                rootResultDescription.unmount();
+            }
+                
                 
             const resultList = document.getElementById("result-list");
-            if (resultList != null)
-                unmountComponentAtNode(resultList);
+            if (resultList != null) {
+                const rootResultList = createRoot(resultList);
+                rootResultList.unmount();
+            }
+                
 
             var reader = new FileReader();
             reader.onload = function (e) {
@@ -78,11 +85,13 @@ function Identify() {
             const breed = await findByName(breedName)
                                 .then(res => res.data);
             
+            const rootDescription = createRoot(document.getElementById("result-description"));
             const description = makeDescription(breed);
-            render(description, document.getElementById("result-description"));
+            rootDescription.render(description);
 
+            const rootList = createRoot(document.getElementById("result-list"));
             const list = breeds.map(makeList);
-            render(list, document.getElementById("result-list"));
+            rootList.render(list);
         } else {
             breedName = "Sorry, no idea what it is.";
         }
