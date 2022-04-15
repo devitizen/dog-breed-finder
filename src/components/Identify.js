@@ -1,104 +1,98 @@
-import React, {useState} from "react";
+import React, { useState, useRef } from "react";
 import { createRoot } from 'react-dom/client';
-
 import * as tmImage from "@teachablemachine/image";
+
 import breeds from "../data/breeds";
 import { findByName } from "../services/connect"
 
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Grid from '@mui/material/Grid';
+import CircularProgress from "@mui/material/CircularProgress";
 
 
 function Identify() {
 
-    const [showResultContainer, setShowResultContainer] = useState(false);
     const [showSpinner, setShowSpinner] = useState(false);
+    const showResultContainer = useRef(false);
+    const rootDescription = useRef();
+    const rootList = useRef();
 
     const onClickHandler = (event) => {
         const input = event.target.files;
         if (input && input[0]) {
-            setShowResultContainer(true);
+            showResultContainer.current = true;
             setShowSpinner(true);
 
-            // delete the previous result
-            const resultName = document.getElementById("result-name");
-            if (resultName != null)
-                resultName.innerHTML = "";
-
-            const resultDescription = document.getElementById("result-description");
-            if (resultDescription != null) {
-                const rootResultDescription = createRoot(resultDescription);
-                rootResultDescription.unmount();
-            }
-                
-                
-            const resultList = document.getElementById("result-list");
-            if (resultList != null) {
-                const rootResultList = createRoot(resultList);
-                rootResultList.unmount();
-            }
-                
-
-            var reader = new FileReader();
-            reader.onload = function (e) {
+            let reader = new FileReader();
+            reader.onload = (e) => {
                 document.getElementById("dog-image").setAttribute("src", e.target.result);
             };
             reader.readAsDataURL(input[0]);
 
-            init().then(() => predict());
+            predict()
+                .then((breeds) => {
+                    displayResult(breeds);
+                });
         }
-    };
+    }
 
-    // the link to your model provided by Teachable Machine export panel
-    const URL = "./models/v3.1/";
-    let model;
-
-    // Load the image model and setup the webcam
-    const init = async () => {
+    // prediction model provided by Teachable Machine
+    const predict = async () => {
+        const URL = "./models/v3.1/";
         const modelURL = URL + "model.json";
         const metadataURL = URL + "metadata.json";
 
-        // load the model and metadata
-        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
-        // or files from your local hard drive
-        model = await tmImage.load(modelURL, metadataURL);
-    };
-
-    const predict = async () => {
+        let model = await tmImage.load(modelURL, metadataURL);
         const result = await model.predict(document.getElementById("dog-image"), false);
-        const breeds = result
-                        .filter((element) => element.probability >= 0.001)
-                        .sort((a, b) => b.probability - a.probability)
-                        .slice(0, 5);
-        
-        const isIdentified = breeds[0].probability >= 0.5;
-        let breedName;
-        if (isIdentified) {
-            breedName = breeds[0].className.trim();
-            const breed = await findByName(breedName)
-                                .then(res => res.data);
-            
-            const rootDescription = createRoot(document.getElementById("result-description"));
-            const description = makeDescription(breed);
-            rootDescription.render(description);
 
-            const rootList = createRoot(document.getElementById("result-list"));
+        // find more than 0.1% probability and most 5
+        return result
+                .filter((element) => element.probability >= 0.001)
+                .sort((a, b) => b.probability - a.probability)
+                .slice(0, 5);
+
+    }
+
+    const displayResult = async (breeds) => {
+        const eName = document.getElementById("result-name");
+        const eDescription = document.getElementById("result-description");
+        const eList = document.getElementById("result-list");
+
+        // remove previous results
+        if (eName.innerHTML !== "") {
+            eName.innerHTML = "";
+            rootDescription.current.unmount();
+            rootList.current.unmount();
+        }
+
+        const first = breeds[0];
+        const isIdentified = first.probability >= 0.5;
+        if (isIdentified) {
+            const firstName = first.className.trim();
+            const firstInfo = await findByName(firstName).then(res => res.data);
+
+            const description = makeDescription(firstInfo);
+            rootDescription.current = createRoot(eDescription);
+            rootDescription.current.render(description);
+
             const list = breeds.map(makeList);
-            rootList.render(list);
+            rootList.current = createRoot(eList);
+            rootList.current.render(list);
+
+            eName.append(firstName);
         } else {
-            breedName = "Sorry, no idea what it is.";
+            const message = "Sorry, no idea what it is.";
+            eName.append(message);
         }
 
         setShowSpinner(false);
-        document.getElementById("result-name").append(breedName);
-    };
+    }
 
     const makeDescription = (breed) => {
         return (
@@ -166,7 +160,7 @@ function Identify() {
             </Container>
            
             <Container sx={{ mt: 5 }}>
-                { showResultContainer ? 
+                { showResultContainer.current ? 
                     <Container sx={{ backgroundColor: "grey.100", py: 4, borderRadius: 2 }} >
                         { showSpinner ?
                             <Box
@@ -198,7 +192,7 @@ function Identify() {
                 }
             </Container>
 
-            <Container sx={{ mt: 5 }}>
+            <Container sx={{ mt: 5, width: ["90%", "100%", "70%"] }}>
                 <Box sx={{ mx: 2 }}>
                     <Box sx={{ paddingY: 1, fontSize: 14 }}>
                         Dog Breed Finder takes advantage of the Google machine learning technology.<br/><br/>
