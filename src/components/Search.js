@@ -29,7 +29,8 @@ function Search() {
     const topButtonThread = 80;
     const mySkeletons = Array(12).fill(null);
 
-    let isDataLoaded = useRef(false);
+    const isDataLoaded = useRef(false);
+    const searchedBreeds = useRef(0);
 
     useEffect(() => {
         loadData();
@@ -43,22 +44,43 @@ function Search() {
     const loadData = async () => {
         const data = await findAll().then((res) => res.data);
         const sortedData = data.sort((a, b) => a.name.localeCompare(b.name));
+        searchedBreeds.current = sortedData;
         setAllBreeds(sortedData);
     }
 
     const criteriaChangeHandler = (event) => {
-        setCriteria(event.target.value);
+        const newCriteria = event.target.value;
+        updateSearchedBreeds(newCriteria, keyword);
+        setCriteria(newCriteria);
     }
 
     const keywordChangeHandler = (event) => {
+        const newKeyword = event.currentTarget.value.trim().toLowerCase();
+        updateSearchedBreeds(criteria, newKeyword);
         setKeyword(event.currentTarget.value.trim().toLowerCase()); 
     }
 
     const clearClickHandler = () => {
         document.getElementById("keywordTF").value = "";
+        updateSearchedBreeds(criteria, "");
         setKeyword("");
     }
-    
+
+    const updateSearchedBreeds = (criteria, keyword) => {
+        searchedBreeds.current = 
+            allBreeds
+                .filter(b => {
+                    switch (criteria) {
+                        case 10:
+                            return b.name.toLowerCase().includes(keyword);
+                        case 20:
+                            return b.description.toLowerCase().includes(keyword);
+                        default:
+                            return true;
+                    }
+                });
+    }
+
     const scrollHandler = (event) => {
         const location = event.currentTarget.scrollY;
         if (location > topButtonThread) {
@@ -128,8 +150,8 @@ function Search() {
                 </Box>
             </Box>
 
-            <Box sx={{ mb: 2, color: "gray"}}>
-                Found 
+            <Box sx={{ mb: 2, color: "gray", fontSize: 14}}>
+                Searched {searchedBreeds.current.length}
             </Box>
 
             <Box sx={{ flexGrow: 1 }}>
@@ -139,17 +161,7 @@ function Search() {
                     columns={{ xs: 4, sm: 8, md: 12 }}
                 >
                     { isDataLoaded.current ?
-                        allBreeds
-                            .filter(b => {
-                                switch (criteria) {
-                                    case 10:
-                                        return b.name.toLowerCase().includes(keyword);
-                                    case 20:
-                                        return b.description.toLowerCase().includes(keyword);
-                                    default:
-                                        return true;
-                                }
-                            })
+                        searchedBreeds.current
                             .map((breed, index) => (
                                 <Grid item xs={4} sm={4} md={4} key={index}>
                                     <MediaCard
