@@ -10,12 +10,15 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import Stack from '@mui/material/Stack';
 import Skeleton from '@mui/material/Skeleton';
+import Paper from '@mui/material/Paper';
+import InputBase from '@mui/material/InputBase';
+import IconButton from '@mui/material/IconButton';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import Divider from '@mui/material/Divider';
 
 
 function Search() {
@@ -24,13 +27,13 @@ function Search() {
     const [keyword, setKeyword] = useState("");
     const [showTopButton, setShowTopButton] = useState(false); 
 
+    const isDataLoaded = useRef(false);
+    const searchedBreeds = useRef(0);
+
     const cardHeight = 200;
     const cardMaxWidth = 456;
     const topButtonThread = 80;
     const mySkeletons = Array(12).fill(null);
-
-    const isDataLoaded = useRef(false);
-    const searchedBreeds = useRef(0);
 
     useEffect(() => {
         loadData();
@@ -58,6 +61,12 @@ function Search() {
         const newKeyword = event.currentTarget.value.trim().toLowerCase();
         updateSearchedBreeds(criteria, newKeyword);
         setKeyword(event.currentTarget.value.trim().toLowerCase()); 
+    }
+
+    const onEnterHandler = (event) => {
+        if (event.key === "Enter") {
+            event.target.blur();
+        }
     }
 
     const clearClickHandler = () => {
@@ -97,7 +106,7 @@ function Search() {
 
 
     return (
-        <Container sx={{ mt: 5 }}>
+        <Container sx={{ mt: 3 }}>
             { showTopButton ? 
                 <Button
                     variant="contained"
@@ -112,58 +121,50 @@ function Search() {
                 null
             }
 
-            <Box  sx={{ display: "flex", justifyContent: "center" }} >
-                <Box
+            <Box sx={{ display: "flex", justifyContent: "center" }} >
+                <Paper
                     sx={{
+                        display: 'flex', 
+                        alignItems: 'center', 
                         width: ["100%", "80%", "60%"],
                         maxWidth: [cardMaxWidth, 600],
-                        mb: 5,
-                    }}
-                >
-                    <Stack direction="row">
-                        <Box sx={{ mr: 1 }}>
-                            <FormControl fullWidth>
-                                <Select
-                                    value={criteria}
-                                    onChange={criteriaChangeHandler}
-                                    autoWidth
-                                    sx={{color: "gray"}}
-                                >
-                                    <MenuItem value={10}>Name</MenuItem>
-                                    <MenuItem value={20}>Details</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Box>
-                        <TextField fullWidth autoFocus
-                            label="Enter a keyword" 
-                            onChange={keywordChangeHandler}
-                            id="keywordTF"
-                        />
-                        <Button 
-                            variant="outlined"
-                            sx={{ color: "#C5C5C5", borderColor: "#C5C5C5"}}
-                            onClick={clearClickHandler}
+                        py: 0.5, mb: 3 }}
+                    >
+                    <FormControl variant="standard" sx={{width: 80, ml: 2}}>
+                        <Select
+                            value={criteria}
+                            onChange={criteriaChangeHandler}
+                            sx={{color: "gray", fontSize: ["90%", "100%"]}}
+                            disableUnderline
                         >
-                            Clear
-                        </Button>
-                    </Stack>
-                </Box>
+                            <MenuItem value={10}>Name</MenuItem>
+                            <MenuItem value={20}>Details</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <Divider sx={{ height: 30 }} orientation="vertical" />
+                    <InputBase
+                        sx={{ ml: 2, flex: 1 , fontSize: ["90%", "100%"] }}
+                        placeholder="Enter a keyword"
+                        onChange={keywordChangeHandler}
+                        onKeyUp={onEnterHandler}
+                        id="keywordTF"
+                    />
+                    <IconButton sx={{ px: 1 }} onClick={clearClickHandler}>
+                        <HighlightOffIcon />
+                    </IconButton>
+                </Paper>
             </Box>
 
             <Box sx={{ mb: 2, color: "gray", fontSize: 14}}>
                 Searched {searchedBreeds.current.length}
             </Box>
-
+            
             <Box sx={{ flexGrow: 1 }}>
-                <Grid
-                    container
-                    spacing={{ xs: 2, md: 3 }}
-                    columns={{ xs: 4, sm: 8, md: 12 }}
-                >
+                <Grid container spacing={{ xs: 2, md: 3 }} >
                     { isDataLoaded.current ?
                         searchedBreeds.current
-                            .map((breed, index) => (
-                                <Grid item xs={4} sm={4} md={4} key={index}>
+                            .map((breed, key) => (
+                                <Grid item xs={12} sm={6} md={4} key={key}>
                                     <MediaCard
                                         name={breed.name}
                                         description={breed.description}
@@ -176,7 +177,7 @@ function Search() {
                             ))
                         :
                         mySkeletons.map((_, key) => (
-                            <Grid item xs={4} sm={4} md={4} key={key}>
+                            <Grid item xs={12} sm={6} md={4} key={key}>
                                 <Skeleton 
                                     variant="rectangular"
                                     animation="wave" 

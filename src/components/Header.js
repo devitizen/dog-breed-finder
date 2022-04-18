@@ -32,13 +32,12 @@ function Header() {
         <AppBar position="static">
             <Container maxWidth="lg">
                 <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
-                    <Box>
-                        <Link href="/" sx={{ textDecoration: "none" }}>
-                            <Box sx={{width: ["80%", "90%", "100%", "100%"]}}>
-                                <img src="images/logo.png" alt="Logo" width="100%"/>
-                            </Box>
-                        </Link>
-                    </Box>
+                    <Link href="/" >
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <img src="images/logo.png" alt="Logo" />
+                            <Box sx={{ color: "white", ml: 1}}>Dog Breed Finder</Box>
+                        </Box>
+                    </Link>
                     <Box sx={{flowGrow: 1, display: {xs: "none", sm: "flex"}}}>
                         { pages.map((page, key) => (
                             <Link
