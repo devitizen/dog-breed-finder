@@ -23,6 +23,7 @@ function Identify() {
     const showResultContainer = useRef(false);
     const rootDescription = useRef();
     const rootList = useRef();
+    const imageButton = useRef();
 
     const mainText = [
         "Please allow the permission to use camera of your cell phone.",
@@ -40,6 +41,7 @@ function Identify() {
             let reader = new FileReader();
             reader.onload = (e) => {
                 document.getElementById("dog-image").setAttribute("src", e.target.result);
+                imageButton.current.scrollIntoView();
             };
             reader.readAsDataURL(input[0]);
 
@@ -158,7 +160,10 @@ function Identify() {
                         style={{ maxWidth: "100%" }}
                     />  
                 </Box>
-                <Box sx={{ px: 1, py: 3, fontSize: [18, 20, 22], fontWeight: 600 }}>
+                <Box
+                    sx={{ px: 1, py: 3, fontSize: [18, 20, 22], fontWeight: 600 }}
+                    ref={imageButton}
+                >
                     Let you know the breed of your dog!
                 </Box>
                 <label>
