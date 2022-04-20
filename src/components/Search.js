@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 import { findAll } from "../services/connect";
+import { PageLink } from "../components/Common";
 
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
@@ -106,12 +107,13 @@ function Search() {
 
 
     return (
+        <>
         <Container sx={{ mt: 3 }}>
             { showTopButton ? 
                 <Button
                     variant="contained"
                     color="secondary"
-                    sx={{display: "block", position : "fixed", bottom: "6%", right: "6%"}}
+                    sx={{display: "block", position : "fixed", bottom: "6%", right: "6%", py: 1.5}}
                     id="topButton"
                     onClick={topButtonClickHandler}
                 >
@@ -120,7 +122,6 @@ function Search() {
                 :
                 null
             }
-
             <Box sx={{ display: "flex", justifyContent: "center" }} >
                 <Paper
                     sx={{
@@ -189,6 +190,8 @@ function Search() {
                 </Grid>
             </Box>
         </Container>
+        <PageLink path={"/"} name={"Identify"}/>
+        </>
     );
 }
 
