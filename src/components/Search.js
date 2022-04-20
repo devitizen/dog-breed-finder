@@ -29,7 +29,7 @@ function Search() {
     const [showTopButton, setShowTopButton] = useState(false); 
 
     const isDataLoaded = useRef(false);
-    const searchedBreeds = useRef(0);
+    const searchedBreeds = useRef([]);
 
     const cardHeight = 200;
     const cardMaxWidth = 456;
@@ -38,17 +38,19 @@ function Search() {
 
     useEffect(() => {
         loadData();
-        isDataLoaded.current = true;
+        window.scrollTo(0,0);
         window.addEventListener("scroll", scrollHandler);
-        return () => {
+        return (() => {
             window.removeEventListener("scroll", scrollHandler);
-        }
+        });
     }, []);
 
     const loadData = async () => {
         const data = await findAll().then((res) => res.data);
         const sortedData = data.sort((a, b) => a.name.localeCompare(b.name));
+        
         searchedBreeds.current = sortedData;
+        isDataLoaded.current = true;
         setAllBreeds(sortedData);
     }
 
