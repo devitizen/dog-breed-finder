@@ -1,6 +1,8 @@
 /public/models
 /public/images
 
+/src/services/baseUrl.js
+
 # dependencies
 /node_modules
 

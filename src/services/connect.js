@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = "https://dog-breed-finder-server.herokuapp.com";
+import baseURL from "./baseUrl";
 
 async function findByName (name) {
     const url = baseURL + "/api/breeds";
