@@ -9,7 +9,7 @@ export default function Privacy() {
                 <h3>Privacy Policy for Dog Breed Finder</h3>
                 <div>
                     <p>
-                        At Dog Breed Finder, accessible from whatdog.techj.net, one of
+                        At Dog Breed Finder, accessible from dog-breed-finder.techj.net, one of
                         our main priorities is the privacy of our visitors. This
                         Privacy Policy document contains types of information
                         that is collected and recorded by Dog Breed Finder and how we use
